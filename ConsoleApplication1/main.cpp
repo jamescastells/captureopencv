@@ -1,11 +1,12 @@
 #include "opencv2/opencv.hpp"
 #include <iostream>
 #include <thread>         // std::thread
+#include <conio.h>
 
 using namespace std;
 using namespace cv;
 
-int capture(int device){
+int capture(int device, int *termino){
 	VideoCapture vcap(device);
 	if (!vcap.isOpened()){
 		cout << "Error opening video stream or file" << endl;
@@ -21,18 +22,43 @@ int capture(int device){
 
 	VideoWriter video(pchar, CV_FOURCC('M', 'J', 'P', 'G'), 25, Size(frame_width, frame_height), true);
 
-	for (;;){
+	while(1){
 
 		Mat frame;
 		vcap >> frame;
 		video.write(frame);
 		imshow(pchar, frame);
-		char c = (char)waitKey(33);
-		if (c == 27) break;
+		char c = (char)waitKey(1);
+		if (*termino == 1)
+			break;
+		//if (c == 27) break;
+	}
+	return 0;
+}
+
+int terminar(int *termino){
+	char i;
+	while (1){
+		printf("[Haga clic aquí y presione ESC para terminar]...\n");
+		i = _getch();
+		if (i == 27){
+			printf("Terminando");
+			*termino = 1;
+			return 0;
+		}
 	}
 	return 0;
 }
 
 int main(){
-	capture(0);
+
+	int termino = 0;
+
+	std::thread first(capture,0,&termino);
+	std::thread second(terminar, &termino);
+	
+	first.join();
+	second.join();
+
+	return 0;
 }
