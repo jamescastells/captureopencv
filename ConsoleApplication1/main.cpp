@@ -26,11 +26,17 @@ int capture(int device, int *termino, int  x, int y){
 
 	//std::string s = "D:\\Videos\\" + std::to_string(device) + ".avi";
 
-	std::string s = "D:\\Videos\\";
+	std::string s;
 
-	if (x == 0) s = s + "izquierda.avi";
-	if (x == 700) s = s + "centro.avi";
-	if (x == 1400) s = s + "derecho.avi";
+	if (x == 0) s = "D:\\Videos\\izquierda.avi";
+	else if (x == 700) s= "D:\\Videos\\centro.avi";
+	else if (x == 1400) s="D:\\Videos\\derecho.avi";
+
+	int numero;
+
+	if (x == 0) numero = 1;
+	if (x == 700) numero = 2;
+	if (x == 1400) numero = 3;
 	
 	char const *pchar = s.c_str();  //use char const* as target type
 
@@ -42,6 +48,8 @@ int capture(int device, int *termino, int  x, int y){
 	camera->SetVideoType(Core::MJPEGMode);  //== Select MJPEG Video ===================---
 	camera->SetAEC(true);             //== Enable Automatic Exposure Control ====---
 	camera->SetAGC(true);             //== Enable Automatic Gain Control ========---
+
+	camera->SetNumeric(true, numero);
 
 	//== Start camera output ==--
 
@@ -74,17 +82,21 @@ int capture(int device, int *termino, int  x, int y){
 			imshow(pchar, matFrame);
 
 			int key = waitKey(1);
-
+				
 			if (key == 27)
 				*termino = 1;
+
+
 		
 			//printf("Grabando camara %d\n",device);
 
 			frame->Release();
 		}
 
-		if (*termino == 1)
+		if (*termino == 1){
+			camera->Release();
 			return 0;
+		}
 
 	}
 	return 0;
@@ -92,8 +104,10 @@ int capture(int device, int *termino, int  x, int y){
 
 int terminar(int *termino){
 	while (1){
-		if (*termino == 1)
+		if (*termino == 1){
+			Sleep(1500);
 			return 0;
+		}
 	}
 	return 0;
 }
@@ -112,7 +126,7 @@ int main(){
 	//== Now, lets pop a dialog that will persist until there is at least one camera that is initialized
 	//== or until canceled.
 
-	//Sleep(1000);
+	Sleep(1000);
 
 	int termino = 0;
 
